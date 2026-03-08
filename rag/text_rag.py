@@ -16,12 +16,23 @@ class TextRAG:
         # Создаем директорию если её нет
         os.makedirs(persist_directory, exist_ok=True)
         
-        # Инициализируем ChromaDB клиент
-        self.client = chromadb.Client(Settings(
-            persist_directory=persist_directory,
-            anonymized_telemetry=False,
-            allow_reset=True
-        ))
+        # Исправленная инициализация клиента для новых версий ChromaDB
+        try:
+            # Для новых версий ChromaDB
+            self.client = chromadb.PersistentClient(
+                path=persist_directory,
+                settings=Settings(
+                    anonymized_telemetry=False,
+                    allow_reset=True
+                )
+            )
+        except:
+            # Fallback для старых версий
+            self.client = chromadb.Client(Settings(
+                persist_directory=persist_directory,
+                anonymized_telemetry=False,
+                allow_reset=True
+            ))
         
         # Создаем или получаем коллекцию
         self.collection_name = "presentation_knowledge"
