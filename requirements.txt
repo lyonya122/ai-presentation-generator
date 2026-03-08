@@ -6,6 +6,7 @@ pillow>=10.1.0
 # AI/ML
 torch>=2.1.0
 transformers>=4.36.0
+torchvision>=0.16.0
 accelerate>=0.25.0
 bitsandbytes>=0.41.3
 sentence-transformers>=2.2.2
