@@ -5,7 +5,6 @@ from sentence_transformers import SentenceTransformer
 from typing import List, Dict
 import os
 import hashlib
-from PIL import Image
 import streamlit as st
 
 class MultimodalRAG:
@@ -17,12 +16,21 @@ class MultimodalRAG:
         # Создаем директорию
         os.makedirs(persist_directory, exist_ok=True)
         
-        # Инициализируем ChromaDB клиент
-        self.client = chromadb.Client(Settings(
-            persist_directory=persist_directory,
-            anonymized_telemetry=False,
-            allow_reset=True
-        ))
+        # Исправленная инициализация клиента
+        try:
+            self.client = chromadb.PersistentClient(
+                path=persist_directory,
+                settings=Settings(
+                    anonymized_telemetry=False,
+                    allow_reset=True
+                )
+            )
+        except:
+            self.client = chromadb.Client(Settings(
+                persist_directory=persist_directory,
+                anonymized_telemetry=False,
+                allow_reset=True
+            ))
         
         # Создаем коллекцию для изображений
         self.collection_name = "visual_knowledge"
@@ -96,7 +104,7 @@ class MultimodalRAG:
                     "path": metadata.get("path", ""),
                     "type": metadata.get("type", "image"),
                     "description": results['documents'][0][i] if results['documents'] else "",
-                    "score": 1.0  # Можно добавить реальную оценку
+                    "relevance": 1.0 - results['distances'][0][i] if results.get('distances') else 1.0
                 })
         
         return images
